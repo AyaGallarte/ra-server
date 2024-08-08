@@ -17,6 +17,12 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors());
 
+const corsOptions = {
+    origin: ["http://localhost:5173"],
+    credentials: true,
+    optionsSuccessStatus: 200
+}
+
 mongoose.connect("mongodb://localhost:27017/blog");
 
 mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"))
