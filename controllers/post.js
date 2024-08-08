@@ -29,7 +29,7 @@ module.exports.addPost = async (req, res) => {
 };
 
 module.exports.getPosts = (req, res) => {
-  return Post.find({ userId: req.user.id })
+  return Post.find({})
     .then(posts => {
       if (posts.length > 0) {
         return res.status(200).send({ posts: posts });
@@ -121,7 +121,7 @@ module.exports.addComment = (req, res) => {
      .then((post) => {
          if (post) {
              res.status(200).send({
-                 message: "comment added successfully",
+                 message: "Comment added successfully",
                  updatedPost: post
              });
          } else {
