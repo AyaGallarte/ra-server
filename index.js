@@ -18,7 +18,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(cors());
 
 const corsOptions = {
-    origin: ["http://localhost:5173"],
+    origin: ["https://blog-client-liart.vercel.app/","https://blog-client-ayas-projects-393c05ff.vercel.app/","https://blog-client-git-main-ayas-projects-393c05ff.vercel.app/"],
     credentials: true,
     optionsSuccessStatus: 200
 }
