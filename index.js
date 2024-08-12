@@ -58,9 +58,9 @@ app.use(express.urlencoded({ extended: true }));
 // CORS options
 const corsOptions = {
     origin: [
-        "https://blog-client-liart.vercel.app/",
-        "https://blog-client-ayas-projects-393c05ff.vercel.app/",
-        "https://blog-client-git-main-ayas-projects-393c05ff.vercel.app/"
+        "https://blog-client-liart.vercel.app",
+        "https://blog-client-ayas-projects-393c05ff.vercel.app",
+        "https://blog-client-git-main-ayas-projects-393c05ff.vercel.app"
     ],
     credentials: true,
     optionsSuccessStatus: 200
