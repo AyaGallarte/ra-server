@@ -18,5 +18,9 @@ router.patch('/addComment/:postId', verify, postController.addComment);
 
 router.get("/getComments/:postId", verify, postController.getComments);
 
+router.patch("/editComment/:postId/:commentId", verify, postController.editComment);
+
+router.delete("/deleteComment/:postId/:commentId", verify, postController.deleteComment);
+
 // [SECTION] Export Route System
 module.exports = router;

@@ -109,7 +109,7 @@ module.exports.addComment = (req, res) => {
 
      const newComment = {
          userId: req.user.id,
-         username: req.user.email,
+         username: req.user.username,
          comments: comments
      };
 
@@ -147,4 +147,104 @@ module.exports.getComments = (req, res) => {
     })
     .catch(err => errorHandler(err, req, res));
 };
+
+// module.exports.editComment = async (req, res) => {
+//     const { postId, commentId } = req.params;
+//     const { comments } = req.body;
+//     const userId = req.user.id; // Assuming user is authenticated and userId is available
+
+//     console.log('here  ' + req.body);
+
+//     try {
+//         const post = await Post.findById(postId);
+//         if (!post) return res.status(404).json({ message: 'Post not found' });
+
+//         const commentToUpdate = post.comments.id(commentId);
+//         if (!commentToUpdate) return res.status(404).json({ message: 'Comment not found' });
+
+//         // Check if the user owns the comment
+//         if (commentToUpdate.userId.toString() !== userId.toString()) {
+//             return res.status(403).json({ message: 'Not authorized to edit this comment' });
+//         }
+
+//         // Update the comment
+
+//         commentToUpdate.comments = comments;
+//         console.log('updated comment ' + comments);
+
+//         await post.save();
+
+//         res.json({ message: 'Comment updated successfully' });
+//     } catch (error) {
+//         console.error('Error updating comment:', error);
+//         res.status(500).json({ error: 'Server error' });
+//     }
+// };
+
+module.exports.editComment = async (req, res) => {
+    console.log('Request received');
+    const { postId, commentId } = req.params;
+    const { comments } = req.body;
+    const userId = req.user.id; // Assuming user is authenticated and userId is available
+
+    try {
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+
+        const commentToUpdate = post.comments.id(commentId);
+        if (!commentToUpdate) return res.status(404).json({ message: 'Comment not found' });
+
+        // Check if the user owns the comment
+        if (commentToUpdate.userId.toString() !== userId.toString()) {
+            return res.status(403).json({ message: 'Not authorized to edit this comment' });
+        }
+
+        // Update the comment
+        commentToUpdate.comments = comments;
+
+        await post.save();
+        res.status(200).send({
+                 message: "Comment added successfully",
+                 updatedPost: post
+             });
+    } catch (error) {
+        console.error('Error updating comment:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+
+module.exports.deleteComment = async (req, res) => {
+    const { postId, commentId } = req.params;
+    const userId = req.user.id; // Assuming user is authenticated and userId is available
+
+    try {
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+
+        const commentToDelete = post.comments.id(commentId);
+
+        console.log('here ' + commentToDelete);
+        if (!commentToDelete) return res.status(404).json({ message: 'Comment not found' });
+
+        // Check if the user owns the comment
+        // if (commentToDelete.userId.toString() !== userId.toString()) {
+        //     return res.status(403).json({ message: 'Not authorized to delete this comment' });
+        // }
+
+        // Remove the comment
+        post.comments.pull({ _id: commentId });
+        await post.save();
+
+        // Send a success response
+        res.status(200).json({
+            message: "Comment deleted successfully",
+            updatedPost: post
+        });
+} catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
 

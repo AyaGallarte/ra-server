@@ -23,7 +23,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 }
 
-mongoose.connect("mongodb://localhost:27017/blog");
+mongoose.connect(process.env.MONGODB_STRING);
 
 mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"))
 
