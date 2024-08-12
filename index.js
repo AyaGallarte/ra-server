@@ -21,6 +21,7 @@ const corsOptions = {
         "https://blog-client-ayas-projects-393c05ff.vercel.app",
         "https://blog-client-git-main-ayas-projects-393c05ff.vercel.app"
     ],
+    methods: 'GET,POST,PUT,DELETE',
     credentials: true,
     optionsSuccessStatus: 200
 };
