@@ -1,15 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
-// [Routes]
-const userRoutes = require("./routes/user");
-const postRoutes = require("./routes/post");
-
 // [Environment Setup] 
 require("dotenv").config();
 
 // [Server setup] 
+const port = 4000;
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,13 +23,18 @@ const corsOptions = {
 
 // Use CORS middleware with options
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable pre-flight requests for all routes
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_STRING);
+//mongoose.connect(process.env.MONGODB_STRING);
+mongoose.connect(process.env.MONGODB_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
 
 mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"));
 
-// [Backend Routes]
+// [Routes]
+const userRoutes = require("./routes/user");
+const postRoutes = require("./routes/post");
+
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 
