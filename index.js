@@ -55,76 +55,37 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const https = require("https");
+// [Environment Setup] 
 require("dotenv").config();
 
-// [Server setup]
-const port = 8080;
+// [Server setup] 
+const port = 4000;
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Enable CORS for all origins
-app.use(cors());
-
-app.get('/', (req, res) => {
-    res.send('Welcome to CORS server');
-});
-
-app.get('/cors', (req, res) => {
-    res.send('This has CORS enabled');
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
 
 // CORS configuration
-// const corsOptions = {
-//     origin: [
-//         "https://blog-client-liart.vercel.app",
-//         "https://blog-client-ayas-projects-393c05ff.vercel.app",
-//         "https://blog-client-git-main-ayas-projects-393c05ff.vercel.app"
-//     ],
-//     methods: 'GET,POST,PUT,DELETE',
-//     credentials: true,
-//     optionsSuccessStatus: 200
-// };
+const corsOptions = {
+    origin: [
+        "https://blog-client-liart.vercel.app",
+        "https://blog-client-ayas-projects-393c05ff.vercel.app",
+        "https://blog-client-git-main-ayas-projects-393c05ff.vercel.app"
+    ],
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 200
+};
 
-// // Use CORS middleware with options
-// app.use(cors(corsOptions));
+// Use CORS middleware with options
+app.use(cors(corsOptions));
 
-// app.get('/cors', (req, res) => {
-// res.set('Access-Control-Allow-Origin', '*');
-// res.send({ "msg": "This has CORS enabled" })
-// })
-
-// // Example route using https module
-// app.get('/users', (req, res) => {
-//     https.get('https://blog-server-nhh1.onrender.com/users', (apiRes) => {
-//         let data = '';
-
-//         // Accumulate data
-//         apiRes.on('data', (chunk) => {
-//             data += chunk;
-//         });
-
-//         // On end of response
-//         apiRes.on('end', () => {
-//             if (apiRes.statusCode === 200) {
-//                 res.json(JSON.parse(data));
-//             } else {
-//                 res.status(apiRes.statusCode).json({ type: 'error', message: 'Failed to fetch data' });
-//             }
-//         });
-//     }).on('error', (err) => {
-//         res.status(500).json({ type: 'error', message: err.message });
-//     });
-// });
+// Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions)); 
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_STRING)
-    .then(() => console.log("Now connected to MongoDB Atlas"))
-    .catch(err => console.error("Failed to connect to MongoDB Atlas:", err));
+mongoose.connect(process.env.MONGODB_STRING);
+
+mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"));
 
 // [Routes]
 const userRoutes = require("./routes/user");
@@ -136,13 +97,14 @@ app.use("/posts", postRoutes);
 // [Error handling middleware]
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({ type: 'error', message: 'Something broke!' });
+    res.status(500).send('Something broke!');
 });
 
 // [Start server]
-// const serverPort = process.env.PORT || port;
-// app.listen(serverPort, () => {
-//     console.log(`API is now online on port ${serverPort}`);
-// });
+if (require.main === module) {
+    app.listen(process.env.PORT || port, () => {
+        console.log(`API is now online on port ${process.env.PORT || port}`);
+    });
+}
 
 module.exports = { app, mongoose };
