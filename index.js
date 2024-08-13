@@ -26,8 +26,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Enable pre-flight requests for all routes
 
 // Connect to MongoDB
-//mongoose.connect(process.env.MONGODB_STRING);
-mongoose.connect(process.env.MONGODB_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_STRING);
 
 mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"));
 
