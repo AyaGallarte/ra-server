@@ -55,7 +55,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const axios = require("axios"); // Using axios for making HTTP requests
+const https = require("https");
 require("dotenv").config();
 
 // [Server setup]
@@ -79,14 +79,27 @@ const corsOptions = {
 // Use CORS middleware with options
 app.use(cors(corsOptions));
 
-// Example route using axios
-app.get('/users', async (req, res) => {
-    try {
-        const response = await axios.get('https://blog-server-nhh1.onrender.com/users');
-        res.json(response.data);
-    } catch (error) {
-        res.status(500).json({ type: 'error', message: error.message });
-    }
+// Example route using https module
+app.get('/users', (req, res) => {
+    https.get('https://blog-server-nhh1.onrender.com/users', (apiRes) => {
+        let data = '';
+
+        // Accumulate data
+        apiRes.on('data', (chunk) => {
+            data += chunk;
+        });
+
+        // On end of response
+        apiRes.on('end', () => {
+            if (apiRes.statusCode === 200) {
+                res.json(JSON.parse(data));
+            } else {
+                res.status(apiRes.statusCode).json({ type: 'error', message: 'Failed to fetch data' });
+            }
+        });
+    }).on('error', (err) => {
+        res.status(500).json({ type: 'error', message: err.message });
+    });
 });
 
 // Connect to MongoDB
