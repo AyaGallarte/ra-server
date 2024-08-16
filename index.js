@@ -13,7 +13,9 @@ app.use(express.urlencoded({ extended: true }));
 // CORS configuration
 const corsOptions = {
     origin: [
-        "http://localhost:5173"
+        "https://ra-ecommerce.vercel.app",
+        "https://ra-ecommerce-ayas-projects-393c05ff.vercel.app",
+        "https://ra-ecommerce-git-main-ayas-projects-393c05ff.vercel.app"
     ],
     methods: 'GET,POST,PUT,PATCH,DELETE',
     credentials: true,
