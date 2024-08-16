@@ -13,9 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS configuration
 const corsOptions = {
     origin: [
-        "https://blog-client-liart.vercel.app",
-        "https://blog-client-ayas-projects-393c05ff.vercel.app",
-        "https://blog-client-git-main-ayas-projects-393c05ff.vercel.app"
+        "http://localhost:5173"
     ],
     methods: 'GET,POST,PUT,PATCH,DELETE',
     credentials: true,
