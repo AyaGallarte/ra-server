@@ -44,12 +44,6 @@ app.use("/cart", cartRoutes);
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
 
-// [Error handling middleware]
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
-
 // [Start server]
 if (require.main === module) {
     app.listen(process.env.PORT || port, () => {
