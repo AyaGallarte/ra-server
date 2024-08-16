@@ -34,11 +34,15 @@ mongoose.connect(process.env.MONGODB_STRING);
 mongoose.connection.once('open', () => console.log("Now connected to MongoDB Atlas"));
 
 // [Routes]
-const userRoutes = require("./routes/user");
-const postRoutes = require("./routes/post");
+const userRoutes = require("./routes/user.js");
+const cartRoutes = require("./routes/cart.js");
+const productRoutes = require("./routes/product.js");
+const orderRoutes = require("./routes/order.js");
 
 app.use("/users", userRoutes);
-app.use("/posts", postRoutes);
+app.use("/cart", cartRoutes);
+app.use("/products", productRoutes);
+app.use("/orders", orderRoutes);
 
 // [Error handling middleware]
 app.use((err, req, res, next) => {

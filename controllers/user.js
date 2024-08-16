@@ -1,3 +1,5 @@
+// [SECTION] Dependencies and Modules
+
 const bcrypt = require('bcrypt');
 const User = require("../models/User.js");
 // Importing auth.js
@@ -19,9 +21,71 @@ module.exports.getProfile = (req, res) => {
 	.catch(error => errorHandler(error, req, res));
 };
 
+module.exports.getSpecificProfile = (req, res) => {
+
+	const userId = req.params.id;
+	
+	return User.findById(userId)
+	.then(user => {
+
+		if(!user){
+			return res.status(403).send({ message: 'invalid signature' })
+		}else {
+			user.password = "";
+			return res.status(200).send({user: user});
+		}  
+	})
+	.catch(error => errorHandler(error, req, res));
+};
+
+module.exports.updateUserToAdmin = (req, res) => {
+    const userId = req.params.id;
+
+    // Check if the requesting user is an admin
+    if (!req.user.isAdmin) {
+        return res.status(403).send({ message: "Access denied. Admins only." });
+    }
+
+    // Find the user by ID and update their isAdmin status
+    User.findByIdAndUpdate(userId, { $set: { isAdmin: true } }, { new: true, runValidators: true })
+    .then(updatedUser => {
+        if (!updatedUser) {
+            return res.status(404).send({ message: "User not found." });
+        }
+        res.status(200).send({ updatedUser: updatedUser });
+    })
+    .catch(err => errorHandler(err, req, res));
+};
+
+module.exports.updatePassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    // update the userId to id because our versiono of req.user does not have userId property but id property instead
+    const { id } = req.user; // Extracting user ID from the authorization header (token)
+
+    // Hashing the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Updating the user's password in the database
+    await User.findByIdAndUpdate(id, { password: hashedPassword });
+
+    // Sending a success response
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports.registerUser = (req,res) => {
+
+	console.log('HERE ');
 	if (!req.body.email.includes("@")){
 		return res.status(400).send({error: "Email invalid"});
+	}
+    // Checks if the mobile number has the correct number of characters
+	else if (req.body.mobileNo.length !== 11){
+		return res.status(400).send({error: "Mobile number invalid"});
 	}
     // Checks if the password has atleast 8 characters
 	else if (req.body.password.length < 8) {
@@ -29,8 +93,10 @@ module.exports.registerUser = (req,res) => {
     // If all needed requirements are achieved
 	} else {
 		let newUser = new User({
-			username: req.body.username,
+			firstName : req.body.firstName,
+			lastName : req.body.lastName,
 			email : req.body.email,
+			mobileNo : req.body.mobileNo,
 			password : bcrypt.hashSync(req.body.password, 10)
 		})
 
@@ -62,28 +128,20 @@ module.exports.checkEmailExists = (req, res) => {
 	}
 };
 
-
-module.exports.loginUser = async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.body.username });
-        if (!user) {
-            console.log("No Username Found");
-            console.log(req.body.username);
-            return res.status(404).send({ success: false, message: 'No Username Found' });
-        } else {
-            const isPasswordCorrect = bcrypt.compareSync(req.body.password, user.password);
-            if (isPasswordCorrect) {
-                console.log("Password correct, generating token");
-                const accessToken = auth.createAccessToken(user);
-                return res.status(200).send({ access: accessToken });
-            } else {
-                console.log("Password incorrect");
-                return res.status(401).send({ success: false, error: 'Username and password do not match' });
-            }
-        }
-    } catch (error) {
-        console.error("Error during login:", error);
-        return errorHandler(error, req, res);
-    }
-};
-
+module.exports.loginUser = (req, res) => {
+	return User.findOne({ email: req.body.email })
+	.then(result => {
+		if(result == null){
+			return res.status(404).send({ success: false, message: 'No Email Found' });
+		} else {
+			const isPasswordCorrect = bcrypt.compareSync(req.body.password, result.password);
+			
+			if(isPasswordCorrect){
+				 return res.status(200).send({ access: auth.createAccessToken(result) });
+			} else {
+				return res.status(401).send({ success: false, error: 'Email and password do not match' });
+			}
+		}
+	})
+	.catch(err => errorHandler(error, req, res))
+}
